@@ -193,10 +193,11 @@ const ArtemisPreferencesForm: React.FunctionComponent = () => {
               isOpen={isPageSizeDropdownOpen}
             >
               <SelectList>
-                <SelectOption label={"10"} value={"10"}>{"10"}</SelectOption>
-                <SelectOption label={"20"} value={"20"}>{"20"}</SelectOption>
-                <SelectOption label={"50"} value={"50"}>{"50"}</SelectOption>
-                <SelectOption label={"100"} value={"100"}>{"100"}</SelectOption>
+                <SelectOption label={"22"} value={"22"}>{"22"}</SelectOption>
+                <SelectOption label={"33"} value={"33"}>{"33"}</SelectOption>
+                <SelectOption label={"55"} value={"55"}>{"55"}</SelectOption>
+                <SelectOption label={"103"} value={"103"}>{"103"}</SelectOption>
+                <SelectOption label={"1000"} value={"1000"}>{"1000"}</SelectOption>
               </SelectList>
             </Select>
           </FlexItem>
