@@ -218,19 +218,12 @@ module.exports = (webpackEnv, args) => {
         // This is only used in production mode
         new TerserPlugin({
           terserOptions: {
-		    ecma: 2020, 
-            compress: {
-              ecma: 5,
-            },
-            mangle: {
-              safari10: true,
-            },
+		    ecma: 2020,
+            compress: true,
+            mangle: true,
             output: {
-              ecma: 2015,
-              comments: false,
-              // Turned on because emoji and regex is not minified properly using default
-              // https://github.com/facebook/create-react-app/issues/2488
-              ascii_only: true,
+              ecma: 2020,
+              comments: false
             },
           },
         }),
