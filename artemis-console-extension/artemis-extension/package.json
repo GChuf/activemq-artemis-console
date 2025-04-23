@@ -8,7 +8,6 @@
   "scripts": {
     "start": "webpack serve --mode development",
     "build": "webpack --mode production && yarn replace-version",
-    "test": "craco test",
     "replace-version": "replace __PACKAGE_VERSION_PLACEHOLDER__ $npm_package_version ./build/static/js -r --include=\"*.js\"",
     "license": "yarn licenses generate-disclaimer -R > ../../artemis-console-distribution/src/main/resources/licenses/licenses/NPMLicenses.txt"
   },
@@ -26,7 +25,6 @@
     "react-scripts": "^5.0.1"
   },
   "devDependencies": {
-    "@craco/craco": "^7.1.0",
     "@hawtio/backend-middleware": "^1.0.6",
     "@swc/core": "^1.7.26",
     "copy-webpack-plugin": "^12.0.2",
