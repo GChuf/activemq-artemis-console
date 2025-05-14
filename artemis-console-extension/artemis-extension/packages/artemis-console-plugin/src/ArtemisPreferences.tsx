@@ -197,7 +197,6 @@ const ArtemisPreferencesForm: React.FunctionComponent = () => {
                 <SelectOption label={"20"} value={"20"}>{"20"}</SelectOption>
                 <SelectOption label={"50"} value={"50"}>{"50"}</SelectOption>
                 <SelectOption label={"100"} value={"100"}>{"100"}</SelectOption>
-                <SelectOption label={"200"} value={"200"}>{"200"}</SelectOption>
               </SelectList>
             </Select>
           </FlexItem>
