@@ -12,13 +12,6 @@
     "build": "yarn workspaces foreach -Aipt run build",
     "license": "yarn licenses generate-disclaimer -R > ../../artemis-console-distribution/src/main/resources/licenses/licenses/NPMLicenses.txt"
   },
-  "devDependencies": {
-    "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@types/node": "^22.7.7",
-    "replace": "^1.2.2",
-    "typescript": "^5.8.3"
-  },
   "resolutions": {
     "axios": "1.8.4",
     "@typescript-eslint/eslint-plugin": "6.9.0",
