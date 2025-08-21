@@ -37,7 +37,9 @@ import {
     MenuToggleElement,
     MenuToggle
 } from "@patternfly/react-core"
-import { EllipsisVIcon, ExclamationCircleIcon, OkIcon } from '@patternfly/react-icons'
+import { EllipsisVIcon } from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon'
+import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon'
+import { OkIcon } from '@patternfly/react-icons/dist/esm/icons/ok-icon'
 import { Attributes, eventService, Operations } from '@hawtio/react';
 import React, { useContext, useEffect, useState } from "react";
 import { Acceptors, artemisService, BrokerInfo, ClusterConnections } from "../artemis-service";
@@ -48,7 +50,7 @@ export const Status: React.FunctionComponent = () => {
 
     const [brokerInfo, setBrokerInfo] = useState<BrokerInfo>()
     const [acceptors, setAcceptors] = useState<Acceptors>();
-    const [clusterConnections, setClusterConncetions] = useState<ClusterConnections>()
+    const [clusterConnections, setClusterConnections] = useState<ClusterConnections>()
     const { findAndSelectNode } = useContext(ArtemisContext)
 
     const [showAttributesDialog, setShowAttributesDialog] = useState(false);
@@ -57,7 +59,7 @@ export const Status: React.FunctionComponent = () => {
         const getBrokerInfo = async () => {
             artemisService.getBrokerInfo()
                 .then((brokerInfo) => {
-                    setBrokerInfo(brokerInfo)
+                    setBrokerInfo(brokerInfo ?? undefined)
                 })
                 .catch((error: string) => {
                     eventService.notify({
@@ -90,7 +92,7 @@ export const Status: React.FunctionComponent = () => {
         if (!clusterConnections) {
             artemisService.createClusterConnections()
                 .then((clusterConnections) => {
-                    setClusterConncetions(clusterConnections)
+                    setClusterConnections(clusterConnections)
                 })
                 .catch((error: string) => {
                     eventService.notify({

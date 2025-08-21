@@ -24,6 +24,7 @@ const TerserPlugin = require("terser-webpack-plugin")
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin")
 const { WebpackManifestPlugin } = require("webpack-manifest-plugin")
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
 
 const outputPath = path.resolve(__dirname, 'build')
 
@@ -100,22 +101,13 @@ module.exports = (webpackEnv, args) => {
             to: outputPath,
             context: 'public/',
             globOptions: {
-              gitignore: true,
               ignore: ['**/index.html'],
             },
           },
         ],
       }),
       new ModuleFederationPlugin({
-        // The container name corresponds to 'scope' passed to HawtioPlugin
-        name: 'artemisPlugin',
-        filename: 'remoteEntry.js',
-        // The key in exposes corresponds to 'remote' passed to HawtioPlugin
-        // exposes: {
-        //   './plugin': 'artemis-console-plugin',
-        // },
         shared: {
-          ...dependencies,
           'react': {
             singleton: true,
             requiredVersion: dependencies['react'],
@@ -132,7 +124,22 @@ module.exports = (webpackEnv, args) => {
             singleton: true,
             requiredVersion: dependencies['@hawtio/react'],
           },
+          'monaco-editor': {
+            singleton: true,
+            requiredVersion: dependencies['monaco-editor'],
+          },
+          '@patternfly/react-core': {
+            singleton: true,
+            requiredVersion: dependencies['@patternfly/react-core'],
+          },
         }
+      }),
+      new MonacoWebpackPlugin({
+        // 'html' is required as workaround for 'xml'
+        // https://github.com/microsoft/monaco-editor/issues/1509
+        languages: ['xml', 'json', 'html'],
+        publicPath: '',
+        globalAPI: true
       }),
       new InvestigationPlugin({})
     ],
@@ -214,14 +221,18 @@ module.exports = (webpackEnv, args) => {
     ],
     resolve: {
       extensions: ['.ts', '.tsx', '.js', '.cjs', '.jsx'],
-       // To resolve errors for @module-federation/utilities 2.x
+      // To resolve errors for @module-federation/utilities 2.x
       // https://github.com/module-federation/universe/issues/827
       // fallback: {
       //   path: require.resolve('path-browserify'),
       //   os: require.resolve('os-browserify'),
       // },
+      symlinks: true, // with symlinks: false, `webpaack server` doesn't reload on change in the package...
+      alias: {
+        '@thumbmarkjs/thumbmarkjs': path.join(__dirname, '../node_modules/@thumbmarkjs/thumbmarkjs/dist/thumbmark.esm.js'),
+      },
     },
-    optimization: {
+    optimization: isEnvProduction ? {
       minimize: isEnvProduction,
       minimizer: [
         // This is only used in production mode
@@ -296,8 +307,12 @@ module.exports = (webpackEnv, args) => {
         },
       },
       runtimeChunk: 'single',
-    },
+    } : {},
     devServer: {
+      hot: !process.env.DISABLE_WS,
+      liveReload: !process.env.DISABLE_WS,
+      // changing to "ws" adds 20+ more modules to webpack-generated bundle
+      webSocketServer: process.env.DISABLE_WS ? false : 'ws',
       static: [
         {
           directory: path.resolve(__dirname, "build"),

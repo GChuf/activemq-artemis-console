@@ -141,28 +141,43 @@ const MS_PER_HOUR = 60 * MS_PER_MIN;
 const MS_PER_DAY = 24 * MS_PER_HOUR;
 const typeLabels = ["DEFAULT", "1", "object", "text", "bytes", "map", "stream", "embedded"];
 
+/**
+ * Main Artemis service that manages Broker information and topology. Needs properly configured `jolokiaService`
+ * from `@hawtio/react` which may require authenticated user.
+ */
 class ArtemisService {
 
     private brokerObjectName: Promise<string>
-    private brokerInfo: Promise<BrokerInfo>
+    private brokerInfo: Promise<BrokerInfo | null>
 
     constructor() {
+        this.brokerObjectName = Promise.resolve("")
+        this.brokerInfo = Promise.resolve(null)
+    }
+
+    /**
+     * Initialization should be called before registration of Hawtio Artemis plugins in Artemis Extension
+     * _entry point_ (which is the exported `artemis()` function of `HawtioPlugin` type)
+     */
+    initialize() {
         this.brokerObjectName = this.initBrokerObjectName();
         this.brokerInfo = this.initBrokerInfo();
     }
 
     private async initBrokerObjectName(): Promise<string> {
         const config = await configManager.getArtemisconfig();
-        var search = await jolokiaService.search(config.jmx.domain + ":broker=*");
+        var search = await jolokiaService.search(config.jmx.domain + ":broker=*").catch(() => null);
         return search && search[0] ? search[0] : "";
     }
 
-
-
-    async initBrokerInfo(): Promise<BrokerInfo> {
-        return new Promise<BrokerInfo>(async (resolve, reject) => {
+    async initBrokerInfo(): Promise<BrokerInfo | null> {
+        return new Promise<BrokerInfo | null>(async (resolve, reject) => {
             var brokerObjectName = await this.brokerObjectName;
-            var response = await jolokiaService.readAttributes(brokerObjectName);
+            if ("" === brokerObjectName) {
+                resolve(null)
+                return
+            }
+            var response = await jolokiaService.readAttributes(brokerObjectName).catch(e => null);
             if (response) {
                 var name = response.Name as string;
                 var nodeID = response.NodeID as string;
@@ -194,11 +209,11 @@ class ArtemisService {
                 };
                 resolve(brokerInfo);
             }
-            reject("invalid response:" + response);
+            resolve(null)
         });
     }
 
-    async getBrokerInfo(): Promise<BrokerInfo> {
+    async getBrokerInfo(): Promise<BrokerInfo | null> {
         return await this.brokerInfo;
     }
 
@@ -208,15 +223,14 @@ class ArtemisService {
                 var brokerInfo = await this.getBrokerInfo();
                 var brokerObjectName = await this.brokerObjectName;
                 const topology = await jolokiaService.execute(brokerObjectName, LIST_NETWORK_TOPOLOGY_SIG) as string;
-                brokerInfo.networkTopology =  new BrokerNetworkTopology(JSON.parse(topology));
+                brokerInfo!.networkTopology =  new BrokerNetworkTopology(JSON.parse(topology));
                 var brokerTopology: BrokerTopology = {
-                    broker: brokerInfo,
+                    broker: brokerInfo!,
                     addresses: []
                 }
                 var addresses: string[] = (await this.getAllAddresses(addressFilter));
                 var max: number = maxAddresses < addresses.length ? maxAddresses: addresses.length;
                 addresses = addresses.slice(0, max);
-                log.info()
                 for (const address of addresses) {
                     var queuesJson: string = await this.getQueuesForAddress(address);
                     var queues: Queue[] = JSON.parse(queuesJson).data;
@@ -402,7 +416,6 @@ class ArtemisService {
         return new Promise<string[]>(async (resolve, reject) => {
             var addressesString =  await jolokiaService.execute(await this.getBrokerObjectName(), LIST_ALL_ADDRESSES_SIG,  [',']) as string;
             if (addressesString) {
-
                 var addressArray = addressesString.split(',')
                 if (addressFilter && addressFilter.length > 0) {
                     var filtered = addressArray.filter(function (str) { return str.includes(addressFilter); });

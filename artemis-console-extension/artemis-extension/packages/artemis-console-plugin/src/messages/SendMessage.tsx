@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 import React, { FormEvent, useRef, useState } from 'react'
-import * as monacoEditor from 'monaco-editor'
 import xmlFormat from 'xml-formatter'
 
 import {
@@ -38,12 +37,18 @@ import {
   Popover,
   TextContent
 } from '@patternfly/react-core'
-import { OutlinedQuestionCircleIcon, InfoCircleIcon } from '@patternfly/react-icons'
-import { TrashIcon } from '@patternfly/react-icons'
+import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon'
+import { InfoCircleIcon } from '@patternfly/react-icons/dist/esm/icons/info-circle-icon'
+import { TrashIcon } from '@patternfly/react-icons/dist/esm/icons/trash-icon'
 import { CodeEditor, Language } from '@patternfly/react-code-editor'
 import { eventService } from '@hawtio/react'
 import { artemisService } from '../artemis-service'
 import { Message } from './MessageView'
+
+import * as monacoEditor from 'monaco-editor'
+import { loader } from '@monaco-editor/react'
+
+loader.config({ monaco: monacoEditor })
 
 type SendBodyMessageProps = {
   onBodyChange: (body: string) => void
