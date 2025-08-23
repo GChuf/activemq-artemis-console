@@ -105,6 +105,9 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
 
+  const rootElement = document.getElementById('root') as HTMLElement;
+  const popperProps = { position: 'right', appendTo: rootElement };
+
   const initialFilter = () => {
     if (broker.storageColumnLocation && sessionStorage.getItem(broker.storageColumnLocation + '.filter')) {
       return JSON.parse(sessionStorage.getItem(broker.storageColumnLocation + '.filter') as string);
@@ -164,6 +167,31 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
     setPerPage(newPerPage);
   };
   const getKeyByValue = (row: never, columnName: string) => row[columnName];
+
+  const handleFilterClick = (tab: string, value: string) => () => {
+    broker.navigate?.(tab, value);
+  };
+
+  const handleLinkClick = (colLink: (row: any) => void, row: any) => () => {
+    colLink(row);
+  };
+
+  const preparedRows = rows.map((row, rowIndex) => {
+    const cells = columns.map(col => {
+      const value = getKeyByValue(row, col.id);
+      return {
+        col,
+        value,
+        filterValue: col.filter ? col.filter(row) : undefined
+      };
+    });
+    return {
+      row,
+      rowIndex,
+      cells,
+      actions: getRowActions(row, rowIndex)
+    };
+  });
 
   const renderPagination = (variant?: PaginationVariant) => (
     <Pagination
@@ -294,21 +322,34 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
             </Tr>
           </Thead>
           <Tbody>
-            {rows.map((row, rowIndex) => (
+            {preparedRows.map(({ row, rowIndex, actions }) => (
               <Tr key={rowIndex}>
                 {columns.filter(col => col.visible).map((col, idx) => {
                   const value = getKeyByValue(row, col.id);
                   if (col.filter) {
                     const filtered = col.filter(row);
-                    return <Td key={idx}><Link to="" onClick={() => broker.navigate?.(col.filterTab, filtered)}>{value}</Link></Td>;
+                    return (
+                      <Td key={idx}>
+                        <Link to="" onClick={() => broker.navigate?.(col.filterTab, filtered)}>
+                          {value}
+                        </Link>
+                      </Td>
+                    );
                   } else if (col.link) {
-                    return <Td key={idx}><Link to="" onClick={() => col.link?.(row)}>{value}</Link></Td>;
+                    return (
+                      <Td key={idx}>
+                        <Link to="" onClick={() => col.link?.(row)}>
+                          {value}
+                        </Link>
+                      </Td>
+                    );
                   } else {
                     return <Td key={idx}>{value}</Td>;
                   }
                 })}
+
                 <Td isActionCell>
-                  <ActionsColumn items={getRowActions(row, rowIndex)} popperProps={{ position: 'right', appendTo: () => document.getElementById('root') as HTMLElement }} />
+                  <ActionsColumn items={actions} popperProps={popperProps} />
                 </Td>
               </Tr>
             ))}
