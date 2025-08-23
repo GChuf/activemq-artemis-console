@@ -118,15 +118,6 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
 
   const [filter, setFilter] = useState(() => broker.filter ?? initialFilter());
 
-  const [filterColumnStatusSelected, setFilterColumnStatusSelected] = useState(columns.find(column => filter.column === column.id)?.name);
-  const [filterColumnOperationSelected, setFilterColumnOperationSelected] = useState(operationOptions.find(operation => operation.id === filter.operation)?.name);
-  
-  // local state for search input that does not trigger table re-render
-  const [localInputValue, setLocalInputValue] = useState(filter.input);
-
-  //const [filterColumnStatusIsExpanded, setFilterColumnStatusIsExpanded] = useState(false);
-  //const [filterColumnOperationIsExpanded, setFilterColumnOperationIsExpanded] = useState(false);
-
   const listData = async () => {
     console.log("listing");
     const data = await broker.getData(page, perPage, activeSort, filter);
@@ -164,15 +155,7 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
     setActiveSort(updatedActiveSort);
     sessionStorage.setItem(broker.storageColumnLocation + ".activesort", JSON.stringify(updatedActiveSort));
   };
- // const onFilterColumnStatusSelect = (_event?: React.MouseEvent, selection?: string | number) => {
-  //  setFilterColumnStatusSelected(selection as string);
-  //  setFilterColumnStatusIsExpanded(false);
-  //};
- //const onFilterColumnOperationSelect = (_event?: React.MouseEvent, selection?: string | number) => {
-  //  const operation = operationOptions.find(op => op.name === selection);
-  //  if (operation) setFilterColumnOperationSelected(selection as string);
-  //  setFilterColumnOperationIsExpanded(false);
-  //};
+
   const getRowActions = (row: never, rowIndex: number): IAction[] => broker.getRowActions?.(row, rowIndex) ?? [];
   const handleSetPage = (_: any, newPage: number) => setPage(newPage);
   const handlePerPageSelect = (_: any, newPerPage: number) => {
