@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Select, SelectList, SelectOption, MenuToggleElement, MenuToggle, TextInput } from '@patternfly/react-core';
+import { Button, Select, SelectList, SelectOption, MenuToggleElement, MenuToggle, TextInput, ToolbarItem } from '@patternfly/react-core';
 
 export type TableFilterProps = {
   columns: { id: string; name: string; visible: boolean }[];
@@ -22,56 +22,63 @@ export const TableFilter: React.FC<TableFilterProps> = ({ columns, operationOpti
   const applyFilter = () => {
     const column = columns.find(c => c.name === filterColumn);
     const operation = operationOptions.find(o => o.name === filterOperation);
-    if (column && operation) {
+    if (operation && column) {
       onApplyFilter({ column: column.id, operation: operation.id, input: inputValue });
     }
   };
 
   return (
-    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-      <Select
-        toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-          <MenuToggle ref={toggleRef} onClick={() => setColumnOpen(prev => !prev)} isFullWidth>
-            {filterColumn}
-          </MenuToggle>
-        )}
-        isOpen={columnOpen}
-        onOpenChange={setColumnOpen}
-        onSelect={(_e, selection) => { setFilterColumn(selection as string); setColumnOpen(false); }}
-        selected={filterColumn}
-      >
-        <SelectList>
-          {columns.filter(c => c.visible).map(c => (
-            <SelectOption key={c.id} value={c.name}>{c.name}</SelectOption>
-          ))}
-        </SelectList>
-      </Select>
+    <>
+      <ToolbarItem variant="search-filter" key='column-id-select'>
+        <Select
+          toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+            <MenuToggle ref={toggleRef} onClick={() => setColumnOpen(prev => !prev)} isFullWidth>
+              {filterColumn}
+            </MenuToggle>
+          )}
+          isOpen={columnOpen}
+          onOpenChange={setColumnOpen}
+          onSelect={(_e, selection) => { setFilterColumn(selection as string); setColumnOpen(false); }}
+          selected={filterColumn}
+        >
+          <SelectList>
+            {columns.filter(c => c.visible).map(c => (
+              <SelectOption key={c.id} value={c.name}>{c.name}</SelectOption>
+            ))}
+          </SelectList>
+        </Select>
+      </ToolbarItem>
 
-      <Select
-        toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-          <MenuToggle ref={toggleRef} onClick={() => setOperationOpen(prev => !prev)} isFullWidth>
-            {filterOperation}
-          </MenuToggle>
-        )}
-        isOpen={operationOpen}
-        onOpenChange={setOperationOpen}
-        onSelect={(_e, selection) => { setFilterOperation(selection as string); setOperationOpen(false); }}
-        selected={filterOperation}
-      >
-        <SelectList>
-          {operationOptions.map(o => (
-            <SelectOption key={o.id} value={o.name}>{o.name}</SelectOption>
-          ))}
-        </SelectList>
-      </Select>
+      <ToolbarItem variant="search-filter" key="filter-type">
+        <Select
+          toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+            <MenuToggle ref={toggleRef} onClick={() => setOperationOpen(prev => !prev)} isFullWidth>
+              {filterOperation}
+            </MenuToggle>
+          )}
+          isOpen={operationOpen}
+          onOpenChange={setOperationOpen}
+          onSelect={(_e, selection) => { setFilterOperation(selection as string); setOperationOpen(false); }}
+          selected={filterOperation}
+        >
+          <SelectList>
+            {operationOptions.map(o => (
+              <SelectOption key={o.id} value={o.name}>{o.name}</SelectOption>
+            ))}
+          </SelectList>
+        </Select>
+      </ToolbarItem>
 
-      <TextInput
-        aria-label="search-text"
-        value={inputValue}
-        onChange={(_event, value) => setInputValue(value)}
-        onKeyDown={e => { if (e.key === 'Enter') applyFilter(); }}
-      />
+      <ToolbarItem variant="search-filter" key="search=text">
+        <TextInput
+          aria-label="search-text"
+          value={inputValue}
+          onChange={(_event, value) => setInputValue(value)}
+          onKeyDown={e => { if (e.key === 'Enter') applyFilter(); }}
+        />
+      </ToolbarItem>
+
       <Button onClick={applyFilter}>Search</Button>
-    </div>
+    </>
   );
 };

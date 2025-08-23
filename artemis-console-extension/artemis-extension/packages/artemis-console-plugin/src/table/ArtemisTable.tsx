@@ -124,8 +124,8 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
   // local state for search input that does not trigger table re-render
   const [localInputValue, setLocalInputValue] = useState(filter.input);
 
-  const [filterColumnStatusIsExpanded, setFilterColumnStatusIsExpanded] = useState(false);
-  const [filterColumnOperationIsExpanded, setFilterColumnOperationIsExpanded] = useState(false);
+  //const [filterColumnStatusIsExpanded, setFilterColumnStatusIsExpanded] = useState(false);
+  //const [filterColumnOperationIsExpanded, setFilterColumnOperationIsExpanded] = useState(false);
 
   const listData = async () => {
     console.log("listing");
@@ -164,15 +164,15 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
     setActiveSort(updatedActiveSort);
     sessionStorage.setItem(broker.storageColumnLocation + ".activesort", JSON.stringify(updatedActiveSort));
   };
-  const onFilterColumnStatusSelect = (_event?: React.MouseEvent, selection?: string | number) => {
-    setFilterColumnStatusSelected(selection as string);
-    setFilterColumnStatusIsExpanded(false);
-  };
-  const onFilterColumnOperationSelect = (_event?: React.MouseEvent, selection?: string | number) => {
-    const operation = operationOptions.find(op => op.name === selection);
-    if (operation) setFilterColumnOperationSelected(selection as string);
-    setFilterColumnOperationIsExpanded(false);
-  };
+ // const onFilterColumnStatusSelect = (_event?: React.MouseEvent, selection?: string | number) => {
+  //  setFilterColumnStatusSelected(selection as string);
+  //  setFilterColumnStatusIsExpanded(false);
+  //};
+ //const onFilterColumnOperationSelect = (_event?: React.MouseEvent, selection?: string | number) => {
+  //  const operation = operationOptions.find(op => op.name === selection);
+  //  if (operation) setFilterColumnOperationSelected(selection as string);
+  //  setFilterColumnOperationIsExpanded(false);
+  //};
   const getRowActions = (row: never, rowIndex: number): IAction[] => broker.getRowActions?.(row, rowIndex) ?? [];
   const handleSetPage = (_: any, newPage: number) => setPage(newPage);
   const handlePerPageSelect = (_: any, newPerPage: number) => {
@@ -181,17 +181,6 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
     setPerPage(newPerPage);
   };
   const getKeyByValue = (row: never, columnName: string) => row[columnName];
-
-  const applyFilter = () => {
-    setPage(1);
-    const operation = operationOptions.find(op => op.name === filterColumnOperationSelected);
-    const column = columns.find(col => col.name === filterColumnStatusSelected);
-    if (operation && column) {
-      const newFilter = { column: column.id, operation: operation.id, input: localInputValue };
-      setFilter(newFilter);
-      if (broker.storageColumnLocation) sessionStorage.setItem(broker.storageColumnLocation + '.filter', JSON.stringify(newFilter));
-    }
-  };
 
   const renderPagination = (variant?: PaginationVariant) => (
     <Pagination
@@ -275,20 +264,18 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
           />
         </ToolbarItem>
 
-        <ToolbarItem variant="search-filter" key="search-filter">
-          <TableFilter
-            columns={columns}
-            operationOptions={operationOptions}
-            initialFilter={filter}
-            onApplyFilter={(f) => {
-              setPage(1);
-              setFilter(f);
-              if (broker.storageColumnLocation) {
-                sessionStorage.setItem(broker.storageColumnLocation + '.filter', JSON.stringify(f));
-              }
-            }}
-          />
-        </ToolbarItem>
+        <TableFilter
+          columns={columns}
+          operationOptions={operationOptions}
+          initialFilter={filter}
+          onApplyFilter={(f) => {
+            setPage(1);
+            setFilter(f);
+            if (broker.storageColumnLocation) {
+              sessionStorage.setItem(broker.storageColumnLocation + '.filter', JSON.stringify(f));
+            }
+          }}
+        />
 
         <ToolbarItem><Button variant='link' onClick={handleModalToggle}>Manage Columns</Button></ToolbarItem>
         {broker.toolbarActions?.map(action => <ToolbarItem key={action.name}><Button variant='link' onClick={() => action.action()}>{action.name}</Button></ToolbarItem>)}
