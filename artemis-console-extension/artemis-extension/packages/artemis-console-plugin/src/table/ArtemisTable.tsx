@@ -10,25 +10,17 @@ import {
   DataListItemCells,
   Toolbar,
   ToolbarContent,
-  ToolbarItem,
   Modal,
   Pagination,
   PaginationVariant,
   Text,
   TextContent
 } from '@patternfly/react-core';
-import { SortAmountDownIcon } from '@patternfly/react-icons/dist/esm/icons/sort-amount-down-icon';
 import { Thead, Tr, Th, Tbody, Td, IAction, ActionsColumn, Table, InnerScrollContainer } from '@patternfly/react-table';
 import { artemisPreferencesService } from '../artemis-preferences-service';
-import {
-  OptionsMenu,
-  OptionsMenuItem,
-  OptionsMenuItemGroup,
-  OptionsMenuSeparator,
-  OptionsMenuToggle,
-} from '@patternfly/react-core/deprecated';
 
-import { TableFilter } from './TableFilter';
+
+import { ArtemisToolbar } from './ArtemisToolbar';
 
 export type Column = {
   id: string;
@@ -135,7 +127,7 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
 
   useEffect(() => {
     listData();
-  }, [page, perPage, activeSort, filter]);
+  }, [page, perPage, activeSort]);
 
   const handleModalToggle = () => setIsModalOpen(!isModalOpen);
   const onSave = () => {
@@ -216,59 +208,24 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
     </Modal>
   );
 
-  const toolbarItems = (
-    <Toolbar id="toolbar">
-      <ToolbarContent>
-        <ToolbarItem key='sort-menu'>
-          <OptionsMenu
-            id="sort-options-menu"
-            menuItems={[
-              <OptionsMenuItemGroup key="sort-columns" aria-label="Sort column">
-                {columns.filter(col => col.visible).map((col, idx) => (
-                  <OptionsMenuItem
-                    key={col.id}
-                    isSelected={activeSort.id === col.id}
-                    onSelect={() => updateActiveSort(col.id, activeSort.order)}
-                  >
-                    {col.name}
-                  </OptionsMenuItem>
-                ))}
-              </OptionsMenuItemGroup>,
-              <OptionsMenuSeparator key="sep" />,
-              <OptionsMenuItemGroup key="sort-direction" aria-label="Sort direction">
-                <OptionsMenuItem onSelect={() => updateActiveSort(activeSort.id, SortDirection.ASCENDING)} isSelected={activeSort.order === SortDirection.ASCENDING}>Ascending</OptionsMenuItem>
-                <OptionsMenuItem onSelect={() => updateActiveSort(activeSort.id, SortDirection.DESCENDING)} isSelected={activeSort.order === SortDirection.DESCENDING}>Descending</OptionsMenuItem>
-              </OptionsMenuItemGroup>
-            ]}
-            isOpen={isSortDropdownOpen}
-            toggle={<OptionsMenuToggle hideCaret onToggle={() => setIsSortDropdownOpen(!isSortDropdownOpen)} toggleTemplate={<SortAmountDownIcon />} />}
-            isPlain
-            isGrouped
-          />
-        </ToolbarItem>
-
-        <TableFilter
-          columns={columns}
-          operationOptions={operationOptions}
-          initialFilter={filter}
-          onApplyFilter={(f) => {
-            setPage(1);
-            setFilter(f);
-            if (broker.storageColumnLocation) {
-              sessionStorage.setItem(broker.storageColumnLocation + '.filter', JSON.stringify(f));
-            }
-          }}
-        />
-
-        <ToolbarItem><Button variant='link' onClick={handleModalToggle}>Manage Columns</Button></ToolbarItem>
-        {broker.toolbarActions?.map(action => <ToolbarItem key={action.name}><Button variant='link' onClick={() => action.action()}>{action.name}</Button></ToolbarItem>)}
-      </ToolbarContent>
-    </Toolbar>
-  );
-
   return (
     <>
-      {toolbarItems}
+      <Toolbar id="toolbar">
+        <ToolbarContent>
+          <ArtemisToolbar
+            columns={columns}
+            operationOptions={operationOptions}
+            initialFilter={filter}
+            onApplyFilter={f => { setPage(1); setFilter(f); /* store in session */ }}
+            activeSort={activeSort}
+            updateActiveSort={updateActiveSort}
+            isSortDropdownOpen={isSortDropdownOpen}
+            setIsSortDropdownOpen={setIsSortDropdownOpen}
+            handleModalToggle={handleModalToggle}
+            toolbarActions={broker.toolbarActions}
+          />
+        </ToolbarContent>
+      </Toolbar>
       <InnerScrollContainer>
         <Table variant="compact" aria-label="Data Table">
           <Thead>
