@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, ToolbarItem, Select, SelectList, SelectOption, MenuToggleElement, MenuToggle, TextInput } from '@patternfly/react-core';
+import { Button, ToolbarItem, Select, SelectList, SelectOption, MenuToggleElement, MenuToggle, SearchInput } from '@patternfly/react-core';
 import { OptionsMenu, OptionsMenuItem, OptionsMenuItemGroup, OptionsMenuSeparator, OptionsMenuToggle } from '@patternfly/react-core/deprecated';
 import { SortAmountDownIcon } from '@patternfly/react-icons/dist/esm/icons/sort-amount-down-icon';
 import { Column, SortDirection, ActiveSort, ToolbarAction } from './ArtemisTable';
@@ -39,11 +39,17 @@ export const ArtemisToolbar: React.FC<ArtemisToolbarProps> = ({
   const [columnOpen, setColumnOpen] = useState(false);
   const [operationOpen, setOperationOpen] = useState(false);
 
+  const onSearchTextChange = (newValue: string) => {
+    setInputValue(newValue);
+    console.log("onserarchinputchange: ", newValue);
+  };
+
   const applyFilter = () => {
     const column = columns.find(c => c.name === filterColumn);
     const operation = operationOptions.find(o => o.name === filterOperation);
     if (operation && column) {
       onApplyFilter({ column: column.id, operation: operation.id, input: inputValue });
+      console.log("onapplyfilter: ", inputValue);
     }
   };
 
@@ -144,15 +150,21 @@ export const ArtemisToolbar: React.FC<ArtemisToolbarProps> = ({
       </ToolbarItem>
 
       <ToolbarItem variant="search-filter">
-        <TextInput
+        <SearchInput
           aria-label="search-text"
           value={inputValue}
-          onChange={(_event, value) => setInputValue(value)}
+          onChange={(_event, value) => onSearchTextChange(value)}
+
+          onClear={() => {
+            onSearchTextChange('');
+            applyFilter();
+          }}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               applyFilter();
             }
           }}
+
       />
       </ToolbarItem>
 

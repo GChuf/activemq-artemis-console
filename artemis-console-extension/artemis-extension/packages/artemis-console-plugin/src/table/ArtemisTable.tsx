@@ -125,9 +125,9 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
     }
   }, [columnsLoaded]);
 
-  //useEffect(() => {
-  //  listData();
-  //}, [activeSort]);
+  useEffect(() => {
+    listData();
+  }, [filter]);
 
   const handleModalToggle = () => setIsModalOpen(!isModalOpen);
   const onSave = () => {
@@ -218,7 +218,7 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
             columns={columns}
             operationOptions={operationOptions}
             initialFilter={filter}
-            onApplyFilter={f => { setPage(1); setFilter(f); listData(); }}
+            onApplyFilter={f => { setPage(1); setFilter(f); }}
             activeSort={activeSort}
             updateActiveSort={updateActiveSort}
             isSortDropdownOpen={isSortDropdownOpen}
