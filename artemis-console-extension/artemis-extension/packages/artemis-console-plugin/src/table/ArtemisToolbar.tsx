@@ -51,33 +51,38 @@ export const ArtemisToolbar: React.FC<ArtemisToolbarProps> = ({
 
   return (
     <>
-      {/* Sort Menu */}
-      <ToolbarItem key="sort-menu">
+      <ToolbarItem key='address-sort'>
         <OptionsMenu
-          id="sort-options-menu"
+          id="options-menu"
           menuItems={[
             <OptionsMenuItemGroup key="sort-columns" aria-label="Sort column">
               {visibleColumns.map(col => (
                 <OptionsMenuItem
                   key={col.id}
                   isSelected={activeSort.id === col.id}
-                  onSelect={() => updateActiveSort(col.id, activeSort.order)}
+                    onSelect={() => {
+                      updateActiveSort(col.id, activeSort.order)
+                    }}
                 >
                   {col.name}
                 </OptionsMenuItem>
               ))}
             </OptionsMenuItemGroup>,
-            <OptionsMenuSeparator key="sep" />,
+            <OptionsMenuSeparator key="separator" />,
             <OptionsMenuItemGroup key="sort-direction" aria-label="Sort direction">
               <OptionsMenuItem
                 onSelect={() => updateActiveSort(activeSort.id, SortDirection.ASCENDING)}
                 isSelected={activeSort.order === SortDirection.ASCENDING}
+                id="ascending"
+                key="ascending"
               >
                 Ascending
               </OptionsMenuItem>
               <OptionsMenuItem
                 onSelect={() => updateActiveSort(activeSort.id, SortDirection.DESCENDING)}
                 isSelected={activeSort.order === SortDirection.DESCENDING}
+                id="descending"
+                key="descending"
               >
                 Descending
               </OptionsMenuItem>
@@ -96,14 +101,14 @@ export const ArtemisToolbar: React.FC<ArtemisToolbarProps> = ({
         />
       </ToolbarItem>
 
-      {/* Filter controls */}
-      <ToolbarItem variant="search-filter">
+      <ToolbarItem variant="search-filter" key='column-id-select'>
         <Select
           toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-            <MenuToggle ref={toggleRef} onClick={() => setColumnOpen(prev => !prev)} isFullWidth>
+            <MenuToggle isFullWidth ref={toggleRef} onClick={() => setColumnOpen(prev => !prev)}>
               {filterColumn}
             </MenuToggle>
           )}
+          aria-label="Select Input"
           isOpen={columnOpen}
           onOpenChange={setColumnOpen}
           onSelect={(_e, selection) => { setFilterColumn(selection as string); setColumnOpen(false); }}
@@ -117,21 +122,22 @@ export const ArtemisToolbar: React.FC<ArtemisToolbarProps> = ({
         </Select>
       </ToolbarItem>
 
-      <ToolbarItem variant="search-filter">
+      <ToolbarItem variant="search-filter" key="filter-type">
         <Select
           toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-            <MenuToggle ref={toggleRef} onClick={() => setOperationOpen(prev => !prev)} isFullWidth>
+            <MenuToggle isFullWidth ref={toggleRef} onClick={() => setOperationOpen(prev => !prev)}>
               {filterOperation}
             </MenuToggle>
           )}
+          aria-label="Select Input"
           isOpen={operationOpen}
           onOpenChange={setOperationOpen}
           onSelect={(_e, selection) => { setFilterOperation(selection as string); setOperationOpen(false); }}
           selected={filterOperation}
         >
           <SelectList>
-            {operationOptions.map(o => (
-              <SelectOption key={o.id} value={o.name}>{o.name}</SelectOption>
+            {operationOptions.map(column => (
+              <SelectOption key={column.id} value={column.name}>{column.name}</SelectOption>
             ))}
           </SelectList>
         </Select>
@@ -142,15 +148,18 @@ export const ArtemisToolbar: React.FC<ArtemisToolbarProps> = ({
           aria-label="search-text"
           value={inputValue}
           onChange={(_event, value) => setInputValue(value)}
-          onKeyDown={e => { if (e.key === 'Enter') applyFilter(); }}
-        />
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              applyFilter();
+            }
+          }}
+      />
       </ToolbarItem>
 
       <ToolbarItem>
         <Button variant="primary" onClick={applyFilter}>Search</Button>
       </ToolbarItem>
 
-      {/* Manage Columns and extra toolbar actions */}
       <ToolbarItem>
         <Button variant="link" onClick={handleModalToggle}>Manage Columns</Button>
       </ToolbarItem>
