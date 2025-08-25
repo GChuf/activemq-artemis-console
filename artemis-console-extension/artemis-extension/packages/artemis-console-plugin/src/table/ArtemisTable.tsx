@@ -127,7 +127,7 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
 
   useEffect(() => {
     listData();
-  }, [filter]);
+  }, [activeSort, page, perPage, filter]);
 
   const handleModalToggle = () => setIsModalOpen(!isModalOpen);
   const onSave = () => {
@@ -145,7 +145,6 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
   const updateActiveSort = (id: string, order: SortDirection) => {
     const updatedActiveSort: ActiveSort = { id, order };
     setActiveSort(updatedActiveSort);
-    listData();
     sessionStorage.setItem(broker.storageColumnLocation + ".activesort", JSON.stringify(updatedActiveSort));
   };
 
@@ -155,7 +154,6 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
     if (broker.storageColumnLocation) artemisPreferencesService.saveTablePageSize(broker.storageColumnLocation, newPerPage);
     setPage(1);
     setPerPage(newPerPage);
-    listData();
   };
   const getKeyByValue = (row: never, columnName: string) => row[columnName];
 

@@ -39,11 +39,6 @@ export const ArtemisToolbar: React.FC<ArtemisToolbarProps> = ({
   const [columnOpen, setColumnOpen] = useState(false);
   const [operationOpen, setOperationOpen] = useState(false);
 
-  const onSearchTextChange = (newValue: string) => {
-    setInputValue(newValue);
-    console.log("onserarchinputchange: ", newValue);
-  };
-
   const applyFilter = () => {
     const column = columns.find(c => c.name === filterColumn);
     const operation = operationOptions.find(o => o.name === filterOperation);
@@ -153,10 +148,10 @@ export const ArtemisToolbar: React.FC<ArtemisToolbarProps> = ({
         <SearchInput
           aria-label="search-text"
           value={inputValue}
-          onChange={(_event, value) => onSearchTextChange(value)}
+          onChange={(_event, value) => setInputValue(value)}
 
           onClear={() => {
-            onSearchTextChange('');
+            setInputValue('');
             applyFilter();
           }}
           onKeyDown={(e) => {
