@@ -125,9 +125,9 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
     }
   }, [columnsLoaded]);
 
-  useEffect(() => {
-    listData();
-  }, [page, perPage, activeSort]);
+  //useEffect(() => {
+  //  listData();
+  //}, [activeSort]);
 
   const handleModalToggle = () => setIsModalOpen(!isModalOpen);
   const onSave = () => {
@@ -145,6 +145,7 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
   const updateActiveSort = (id: string, order: SortDirection) => {
     const updatedActiveSort: ActiveSort = { id, order };
     setActiveSort(updatedActiveSort);
+    listData();
     sessionStorage.setItem(broker.storageColumnLocation + ".activesort", JSON.stringify(updatedActiveSort));
   };
 
@@ -154,6 +155,7 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
     if (broker.storageColumnLocation) artemisPreferencesService.saveTablePageSize(broker.storageColumnLocation, newPerPage);
     setPage(1);
     setPerPage(newPerPage);
+    listData();
   };
   const getKeyByValue = (row: never, columnName: string) => row[columnName];
 
@@ -216,7 +218,7 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
             columns={columns}
             operationOptions={operationOptions}
             initialFilter={filter}
-            onApplyFilter={f => { setPage(1); setFilter(f); /* store in session */ }}
+            onApplyFilter={f => { setPage(1); setFilter(f); listData(); }}
             activeSort={activeSort}
             updateActiveSort={updateActiveSort}
             isSortDropdownOpen={isSortDropdownOpen}
