@@ -37,30 +37,31 @@ export const ArtemisFilters: React.FC<ArtemisFiltersProps> = ({ columns, operati
   const [operationOpen, setOperationOpen] = useState(false);
 
   const applyFilter = () => {
-    const column = columns.find(c => c.name === filterColumn);
-    const operation = operationOptions.find(o => o.name === filterOperation);
+    const operation = operationOptions.find(operation => operation.name === filterOperation);
+    const column = columns.find(column => column.name === filterColumn);
     if (operation && column) {
       onApplyFilter({ column: column.id, operation: operation.id, input: inputValue });
     }
-  };
+  }
 
   return (
     <>
       <ToolbarItem variant="search-filter" key='column-id-select'>
         <Select
           toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-            <MenuToggle ref={toggleRef} onClick={() => setColumnOpen(prev => !prev)} isFullWidth>
+            <MenuToggle isFullWidth role='menu' ref={toggleRef} onClick={() => setColumnOpen(prev => !prev)}>
               {filterColumn}
             </MenuToggle>
           )}
+          aria-label="Select Input"
           isOpen={columnOpen}
           onOpenChange={setColumnOpen}
           onSelect={(_e, selection) => { setFilterColumn(selection as string); setColumnOpen(false); }}
           selected={filterColumn}
         >
           <SelectList>
-            {columns.filter(c => c.visible).map(c => (
-              <SelectOption key={c.id} value={c.name}>{c.name}</SelectOption>
+            {columns.filter(c => c.visible).map(column => (
+              <SelectOption key={column.id} value={column.name}>{column.name}</SelectOption>
             ))}
           </SelectList>
         </Select>
@@ -69,18 +70,19 @@ export const ArtemisFilters: React.FC<ArtemisFiltersProps> = ({ columns, operati
       <ToolbarItem variant="search-filter" key="filter-type">
         <Select
           toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-            <MenuToggle ref={toggleRef} onClick={() => setOperationOpen(prev => !prev)} isFullWidth>
+            <MenuToggle isFullWidth role='menu' ref={toggleRef} onClick={() => setOperationOpen(prev => !prev)}>
               {filterOperation}
             </MenuToggle>
           )}
+          aria-label="Select Input"
           isOpen={operationOpen}
           onOpenChange={setOperationOpen}
           onSelect={(_e, selection) => { setFilterOperation(selection as string); setOperationOpen(false); }}
           selected={filterOperation}
         >
           <SelectList>
-            {operationOptions.map(o => (
-              <SelectOption key={o.id} value={o.name}>{o.name}</SelectOption>
+            {operationOptions.map(column => (
+              <SelectOption key={column.id} value={column.name}>{column.name}</SelectOption>
             ))}
           </SelectList>
         </Select>
@@ -88,7 +90,7 @@ export const ArtemisFilters: React.FC<ArtemisFiltersProps> = ({ columns, operati
 
       <ToolbarItem variant="search-filter" key="search=text">
         <TextInput
-          aria-label="search-text"
+          aria-label="Search Text"
           value={inputValue}
           onChange={(_event, value) => setInputValue(value)}
           onKeyDown={e => { if (e.key === 'Enter') applyFilter(); }}

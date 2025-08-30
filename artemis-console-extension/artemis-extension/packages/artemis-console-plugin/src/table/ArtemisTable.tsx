@@ -132,12 +132,6 @@ const operationOptions = [
 
   const [filter, setFilter] = useState(() => broker.filter !== undefined ? broker.filter : initialFilter());
 
-  const [filterColumnStatusSelected, setFilterColumnStatusSelected] = useState(columns.find(column => filter.column === column.id)?.name);
-  const [filterColumnOperationSelected, setFilterColumnOperationSelected] = useState(operationOptions.find(operation => operation.id === filter.operation)?.name);
-  const [inputValue, setInputValue] = useState(filter.input);
-  const [filterColumnStatusIsExpanded, setFilterColumnStatusIsExpanded] = useState(false);
-  const [filterColumnOperationIsExpanded, setFilterColumnOperationIsExpanded] = useState(false);
-
   const listData = async () => {
     const data = await broker.getData(page, perPage, activeSort, filter);
     setRows(data.data);
@@ -200,25 +194,6 @@ const operationOptions = [
     setActiveSort(updatedActiveSort)
     sessionStorage.setItem(broker.storageColumnLocation + ".activesort",JSON.stringify(updatedActiveSort));
   }
-
-  const onFilterColumnStatusSelect = (
-    _event?: React.MouseEvent<Element, MouseEvent> | undefined,
-    selection?: string | number | undefined
-  ) => {
-    setFilterColumnStatusSelected(selection as string);
-    setFilterColumnStatusIsExpanded(false);
-  };
-
-  const onFilterColumnOperationSelect = (
-    _event?: React.MouseEvent<Element, MouseEvent> | undefined,
-    selection?: string | number | undefined
-  ) => {
-    const operation = operationOptions.find(operation => operation.name === selection);
-    if (operation) {
-      setFilterColumnOperationSelected(selection as string);
-    }
-    setFilterColumnOperationIsExpanded(false);
-  };
 
   const getRowActions = (row: never, rowIndex: number): IAction[] => {
     if (broker.getRowActions) {
@@ -309,16 +284,16 @@ const operationOptions = [
     );
   };
 
-
-  const toolbarItems = (
+  return (
     <React.Fragment>
+
       <Toolbar id="toolbar">
         <ToolbarContent>
           <ToolbarItem key='address-sort'>
             <OptionsMenu
               id="options-menu-multiple-options-example"
               menuItems={[
-                <OptionsMenuItemGroup key="first group" aria-label="Sort column">
+                <OptionsMenuItemGroup key="sort-columns" aria-label="Sort column">
                   {Object.values(broker.allColumns).filter((element) => element.visible).map((column, columnIndex) => (
                     <OptionsMenuItem
                       key={column.id}
@@ -332,7 +307,7 @@ const operationOptions = [
                   ))}
                 </OptionsMenuItemGroup>,
                 <OptionsMenuSeparator key="separator" />,
-                <OptionsMenuItemGroup key="second group" aria-label="Sort direction">
+                <OptionsMenuItemGroup key="sort-direction" aria-label="Sort direction">
                   <OptionsMenuItem
                     onSelect={() => updateActiveSort(activeSort.id, SortDirection.ASCENDING)}
                     isSelected={activeSort.order === SortDirection.ASCENDING}
@@ -388,12 +363,7 @@ const operationOptions = [
           }
         </ToolbarContent>
       </Toolbar>
-    </React.Fragment>
-  );
 
-  return (
-    <React.Fragment>
-      {toolbarItems}
       <InnerScrollContainer>
       <Table variant="compact" aria-label="Data Table" id='data-table'>
       <Thead>
