@@ -27,7 +27,6 @@ export type ArtemisFiltersProps = {
 
 export const ArtemisFilters: React.FC<ArtemisFiltersProps> = ({ columns, operationOptions, initialFilter, onApplyFilter }) => {
   const searchRef = useRef<HTMLInputElement>(null);
-
   const [filterColumn, setFilterColumn] = useState(
     columns.find(c => c.id === initialFilter.column)
   );
