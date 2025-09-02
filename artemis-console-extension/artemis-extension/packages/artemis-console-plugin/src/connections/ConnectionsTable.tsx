@@ -76,6 +76,7 @@ export const ConnectionsTable: React.FunctionComponent<Navigate> = (navigate) =>
   };
 
   const getRowActions = (row: any, rowIndex: number): IAction[] => {
+    console.log("row actions conn");
     return [
       {
         title: 'Close',

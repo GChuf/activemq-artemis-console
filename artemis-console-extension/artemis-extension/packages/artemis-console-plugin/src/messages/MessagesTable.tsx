@@ -135,6 +135,7 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
   };
 
   const getRowActions = (row: any, rowIndex: number): IAction[] => {
+    console.log("row actions msg");
     return [
       {
         title: 'Delete',

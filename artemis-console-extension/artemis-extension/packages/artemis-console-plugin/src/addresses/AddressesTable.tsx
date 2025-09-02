@@ -94,10 +94,12 @@ export const AddressesTable: React.FunctionComponent<Navigate> = (navigate) => {
   }
 
   const getRowActions = (row: any, rowIndex: number): IAction[] => {
+    //console.log("row actions address");
     var actions: IAction[] = [
       {
         title: 'Show in Artemis JMX',
         onClick: async () => {
+          //console.log("row actions add");
           setAddress(row.name);
           const brokerObjectName = await artemisService.getBrokerObjectName();
           const addressObjectName = createAddressObjectName(brokerObjectName, row.name);

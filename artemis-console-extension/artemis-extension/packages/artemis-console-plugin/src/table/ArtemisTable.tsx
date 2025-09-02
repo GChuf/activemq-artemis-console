@@ -91,6 +91,8 @@ export type TableData = {
 
 export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
 
+
+
 const operationOptions = [
     { id: 'CONTAINS', name: 'Contains' },
     { id: 'NOT_CONTAINS', name: 'Does Not Contain' },
@@ -121,6 +123,13 @@ const operationOptions = [
   const [isCompact, setIsCompact] = useState(false);
   const [perPage, setPerPage] = useState(10);
   const pageSize = artemisPreferencesService.loadTablePageSize(broker.storageColumnLocation);
+
+  const popperProps = {
+    position: 'right' as const,
+    appendTo: () => document.getElementById('root') as HTMLElement,
+  };
+
+  const visibleColumns = columns.filter((column) => column.visible);
 
   const initialFilter = () =>  {
     if (broker.storageColumnLocation && sessionStorage.getItem(broker.storageColumnLocation + '.filter')) {
@@ -201,12 +210,14 @@ const operationOptions = [
     sessionStorage.setItem(broker.storageColumnLocation + ".activesort",JSON.stringify(updatedActiveSort));
   }
 
-  const getRowActions = (row: never, rowIndex: number): IAction[] => {
+  const getRowActions = (row: never): IAction[] => {
     if (broker.getRowActions) {
-      return broker.getRowActions(row, rowIndex);
+      //console.log("row actionstop");
+      return broker.getRowActions(row);
     }
     return [];
   };
+
 
   const handleSetPage = (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPage: number) => {
     setPage(newPage);
@@ -391,8 +402,7 @@ const operationOptions = [
       <Table variant="compact" aria-label="Data Table" id='data-table'>
       <Thead>
         <Tr>
-          {columns.map((column, id) => {
-            if (!column.visible) return null;
+          {visibleColumns.map((column, id) => {
 
             const isSorted = column.id === activeSort.id;
             const direction = isSorted ? activeSort.order : undefined;
@@ -419,11 +429,12 @@ const operationOptions = [
         <Tbody>
             {(() => {
     const t0 = performance.now();
+
     const result = rows.map((row, rowIndex) => (
 
             <Tr key={rowIndex}>
               <>
-               {columns.filter((column) => column.visible).map((column, id) => {
+               {visibleColumns.map((column, id) => {
                   const key = getKeyByValue(row, column.id)
                   if(column.filter) {
                     const filter = column.filter(row);
@@ -436,8 +447,9 @@ const operationOptions = [
                 })}
                 <Td isActionCell>
                   <ActionsColumn
-                    items={getRowActions(row, rowIndex)}
-                    popperProps={{ position: 'right', appendTo: () => (document.getElementById('root') as HTMLElement) }}
+                    items={getRowActions(row)}
+                    popperProps={popperProps}
+                    
                   />
                 </Td>
               </>

@@ -111,6 +111,13 @@ export type BrokerTopology = {
 
 }
 
+export type queuePermissions = {
+  canSend: boolean;
+  canBrowse: boolean;
+  canPurge: boolean;
+  canDelete: boolean;
+}
+
 const LIST_NETWORK_TOPOLOGY_SIG = "listNetworkTopology";
 const SEND_MESSAGE_SIG = "sendMessage(java.util.Map,int,java.lang.String,boolean,java.lang.String,java.lang.String,boolean)";
 const DELETE_ADDRESS_SIG = "deleteAddress(java.lang.String)";
@@ -140,6 +147,8 @@ const MS_PER_MIN = 60 * MS_PER_SEC;
 const MS_PER_HOUR = 60 * MS_PER_MIN;
 const MS_PER_DAY = 24 * MS_PER_HOUR;
 const typeLabels = ["DEFAULT", "1", "object", "text", "bytes", "map", "stream", "embedded"];
+
+const queuePermissionsMap: Record<string, queuePermissions> = {};
 
 /**
  * Main Artemis service that manages Broker information and topology. Needs properly configured `jolokiaService`
@@ -560,6 +569,9 @@ class ArtemisService {
     }
 
     private DEBUG_PRIVS = true;
+
+    
+
     canCreateQueue = (broker: MBeanNode | undefined): boolean => {
         return (this.DEBUG_PRIVS && broker?.hasInvokeRights(CREATE_QUEUE_SIG)) ?? false
     }
@@ -623,6 +635,62 @@ class ArtemisService {
         }
         return false;
     }
+    /*
+    getQueuePermissions = (broker: MBeanNode | undefined): Record<string, queuePermissions> => {
+        const queuePermissionsMap: Record<string, queuePermissions> = {};
+
+        if (!broker?.parent?.children) {
+            return queuePermissionsMap;
+        }
+
+        const queueMBeans: MBeanNode[] = broker.parent.children.filter(
+            (node: MBeanNode) => node.propertyList?.get("subcomponent") === "queues"
+        );
+
+        for (const queueMBean of queueMBeans) {
+            const name = queueMBean.name;
+            //console.log("queue name inside permissions: ", name)
+            queuePermissionsMap[name] = {
+                canSend: queueMBean.hasInvokeRights(SEND_MESSAGE_SIG) ?? false,
+                canPurge: queueMBean.hasInvokeRights(REMOVE_ALL_MESSAGES_SIG) ?? false,
+                canBrowse: queueMBean.hasInvokeRights(BROWSE_SIG) ?? false,
+                canDelete: queueMBean.hasInvokeRights(DELETE_ADDRESS_SIG) ?? false
+            };
+            //console.log("can send is: ", queueMBean.hasInvokeRights(SEND_MESSAGE_SIG));
+
+        }
+
+        return queuePermissionsMap;
+};*/
+getQueuePermissions = (broker: MBeanNode | undefined): Record<string, queuePermissions> => {
+  const queuePermissionsMap: Record<string, queuePermissions> = {};
+
+  if (!broker?.parent) return queuePermissionsMap;
+
+  const collectQueues = (node: MBeanNode) => {
+    if (node.propertyList?.get("subcomponent") === "queues") {
+      queuePermissionsMap[node.name] = {
+        canSend: node.hasInvokeRights(SEND_MESSAGE_SIG) ?? false,
+        canPurge: node.hasInvokeRights(REMOVE_ALL_MESSAGES_SIG) ?? false,
+        canBrowse: node.hasInvokeRights(BROWSE_SIG) ?? false,
+        canDelete: node.hasInvokeRights(DELETE_ADDRESS_SIG) ?? false
+      };
+    }
+
+    // Recurse into children if they exist
+    if (node.children?.length) {
+      node.children.forEach(child => collectQueues(child));
+    }
+  };
+
+  collectQueues(broker.parent);
+
+  return queuePermissionsMap;
+};
+
+getStructure = (broker: MBeanNode | undefined): unknown => {
+  return broker?.parent;
+};
 
     checkCanBrowseQueue = (queueMBean: MBeanNode ): boolean => {
         return (this.DEBUG_PRIVS && queueMBean?.hasInvokeRights(BROWSE_SIG)) ?? false;

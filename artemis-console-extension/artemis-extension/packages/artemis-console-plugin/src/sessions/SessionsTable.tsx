@@ -95,6 +95,7 @@ export const SessionsTable: React.FunctionComponent<Navigate> = navigate => {
   };
 
   const getRowActions = (row: any, rowIndex: number): IAction[] => {
+    console.log("row actions sessions");
     return [
       {
         title: 'Close',
