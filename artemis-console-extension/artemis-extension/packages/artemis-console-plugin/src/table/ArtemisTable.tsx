@@ -417,7 +417,10 @@ const operationOptions = [
         </Tr>
       </Thead>
         <Tbody>
-          {rows.map((row, rowIndex) => (
+            {(() => {
+    const t0 = performance.now();
+    const result = rows.map((row, rowIndex) => (
+
             <Tr key={rowIndex}>
               <>
                {columns.filter((column) => column.visible).map((column, id) => {
@@ -438,9 +441,14 @@ const operationOptions = [
                   />
                 </Td>
               </>
-            </Tr>
-          ))}
-        </Tbody>
+      </Tr>
+    ));
+    console.log("rows.map took", (performance.now() - t0).toFixed(2), "ms");
+    return result;
+  })()}
+</Tbody>
+
+        
       </Table>
       </InnerScrollContainer>
       {renderPagination(PaginationVariant.bottom)}

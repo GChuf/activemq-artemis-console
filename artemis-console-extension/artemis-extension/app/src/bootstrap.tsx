@@ -65,9 +65,9 @@ import('@hawtio/react').then(async m => {
   m.hawtio.bootstrap().then(() => {
     import('@hawtio/react/ui').then(m => {
       root.render(
-          <React.StrictMode>
+          //<React.StrictMode>
             <m.Hawtio />
-          </React.StrictMode>
+          //</React.StrictMode>
       )
     })
   })
