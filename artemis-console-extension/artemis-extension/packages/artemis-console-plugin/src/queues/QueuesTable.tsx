@@ -168,44 +168,44 @@ export const QueuesTable: React.FunctionComponent<QueueNavigate> = navigate => {
       });
   };
 
-const showInJmxAction = (row: any): IAction => ({
+const showInJmxAction = (rowName: string, rowAddress: string, rowRoutingType: string): IAction => ({
   title: "Show in Artemis JMX",
   onClick: async () => {
-    setAddress(row.name);
+    setAddress(rowName);
     const brokerObjectName = await artemisService.getBrokerObjectName();
-    const queueObjectName = createQueueObjectName(brokerObjectName, row.address, row.routingType, row.name);
-    findAndSelectNode(queueObjectName, row.name);
+    const queueObjectName = createQueueObjectName(brokerObjectName, rowAddress, rowRoutingType, rowName);
+    findAndSelectNode(queueObjectName, rowName);
     routenavigate("/treeartemisJMX");
   }
 });
-const attributesAction = (row: any) => ({
+const attributesAction = (rowName: string, rowAddress: string, rowRoutingType: string) => ({
   title: "Attributes",
   onClick: async () => {
-    setAddress(row.name);
+    setAddress(rowName);
     const brokerObjectName = await artemisService.getBrokerObjectName();
     const queueObjectName = createQueueObjectName(
       brokerObjectName,
-      row.address,
-      row.routingType,
-      row.name
+      rowAddress,
+      rowRoutingType,
+      rowName
     );
-    findAndSelectNode(queueObjectName, row.name);
+    findAndSelectNode(queueObjectName, rowName);
     setShowAttributesDialog(true);
   }
 });
 
-const operationsAction = (row: any): IAction => ({
+const operationsAction = (rowName: string, rowAddress: string, rowRoutingType: string): IAction => ({
   title: "Operations",
   onClick: async () => {
-    setAddress(row.name);
+    setAddress(rowName);
     const brokerObjectName = await artemisService.getBrokerObjectName();
     const queueObjectName = createQueueObjectName(
       brokerObjectName,
-      row.address,
-      row.routingType,
-      row.name
+      rowAddress,
+      rowRoutingType,
+      rowName
     );
-    findAndSelectNode(queueObjectName, row.name);
+    findAndSelectNode(queueObjectName, rowName);
     setShowOperationsDialog(true);
   }
 });
@@ -217,32 +217,32 @@ const deleteAction = (rowname: string): IAction => ({
   }
 });
 // Send Message
-const sendMessageAction = (row: any): IAction => ({
+const sendMessageAction = (rowName: string, rowAddress: string, rowRoutingType: string): IAction => ({
   title: "Send Message",
   onClick: () => {
-    setQueue(row.name);
-    setAddress(row.address);
-    setRoutingType(row.routingType);
+    setQueue(rowName);
+    setAddress(rowAddress);
+    setRoutingType(rowRoutingType);
     setShowSendDialog(true);
   }
 });
 
 // Purge
-const purgeAction = (row: any): IAction => ({
+const purgeAction = (rowName: string, rowAddress: string, rowRoutingType: string): IAction => ({
   title: "Purge",
   onClick: () => {
-    setQueue(row.name);
-    setQueueToPurgeAddress(row.address);
-    setQueueToPurgeRoutingType(row.routingType);
+    setQueue(rowName);
+    setQueueToPurgeAddress(rowAddress);
+    setQueueToPurgeRoutingType(rowRoutingType);
     setShowPurgeDialog(true);
   }
 });
 
 // Browse Messages
-const browseAction = (row: any): IAction => ({
+const browseAction = (rowName: string, rowAddress: string, rowRoutingType: string): IAction => ({
   title: "Browse Messages",
   onClick: () => {
-    navigate.selectQueue(row.name, row.address, row.routingType);
+    navigate.selectQueue(rowName, rowAddress, rowRoutingType);
   }
 });
 
@@ -277,8 +277,8 @@ console.log("got permissions from queues table, hopefully only once");
 
   const getRowActions = (row: any): IAction[] => {
     //const permissions = getPermissions();
-    console.log("row actions queue on rowname ", row.name);
-    const rowPerms = permissions[row.name];
+    //console.log("row actions queue on rowname ", row.name);
+
     //console.log("row permiss ", rowPerms);
 
 
@@ -288,27 +288,26 @@ console.log("got permissions from queues table, hopefully only once");
     const rowName = row.name;
     const rowAddress = row.address;
     const rowRoutingType = row.routingType;
-
+    const rowPerms = permissions[rowName];
 
     const actions: IAction[] = [
-    showInJmxAction(row),
-    attributesAction(row),
-    operationsAction(row)
+    showInJmxAction(rowName, rowAddress, rowRoutingType),
+    attributesAction(rowName, rowAddress, rowRoutingType),
+    operationsAction(rowName, rowAddress, rowRoutingType)
   ];
 
 if (rowPerms?.canSend) {
-  actions.push(sendMessageAction(row));
+  actions.push(sendMessageAction(rowName, rowAddress, rowRoutingType));
 }
 if (rowPerms?.canPurge) {
-  actions.push(purgeAction(row));
+  actions.push(purgeAction(rowName, rowAddress, rowRoutingType));
 }
 if (rowPerms?.canBrowse) {
-  actions.push(browseAction(row));
+  actions.push(browseAction(rowName, rowAddress, rowRoutingType));
 }
 if (rowPerms?.canDelete) {
-  actions.push(deleteAction(row));
+  actions.push(deleteAction(rowName));
 }
-
 
 
     //console.log("actions took", (performance.now() - t9).toFixed(2), "ms");
