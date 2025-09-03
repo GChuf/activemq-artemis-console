@@ -91,7 +91,7 @@ export type TableData = {
 
 export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
 
-
+console.log("table")
 
 const operationOptions = [
     { id: 'CONTAINS', name: 'Contains' },
@@ -132,6 +132,7 @@ const operationOptions = [
   const visibleColumns = columns.filter((column) => column.visible);
 
   const initialFilter = () =>  {
+    console.log("initial filter")
     if (broker.storageColumnLocation && sessionStorage.getItem(broker.storageColumnLocation + '.filter')) {
       return JSON.parse(sessionStorage.getItem(broker.storageColumnLocation + '.filter') as string);
     }
@@ -142,12 +143,20 @@ const operationOptions = [
     }
   }
 
-  const [filter, setFilter] = useState(() => broker.filter !== undefined ? broker.filter : initialFilter());
-
+  const [filter2, setFilter] = useState(() => broker.filter !== undefined ? broker.filter : initialFilter());
+/*
   const listData = async () => {
     const data = await broker.getData(page, perPage, activeSort, filter);
     setRows(data.data);
     setresultsSize(data.count);
+  };
+*/
+  const listDataWithFilter = async (filter?: { column: string; operation: string; input: string }) => {
+    console.log("listdatawithfilter: ", filter)
+    //setRows([]);
+    const data = await broker.getData(page, perPage, activeSort, filter);
+    setRows(data.data);
+    //setresultsSize(data.count);
   };
 
   useEffect(() => {
@@ -162,9 +171,29 @@ const operationOptions = [
   }, [columnsLoaded]);
 
   useEffect(() => {
-    listData();
-  }, [page, perPage, activeSort, filter]);
+    console.log("used effect p")
+    listDataWithFilter();
 
+  }, [page]);
+
+  useEffect(() => {
+    console.log("used effect pp")
+    listDataWithFilter();
+
+  }, [perPage]);
+
+  useEffect(() => {
+    console.log("used effect as")
+    listDataWithFilter();
+
+  }, [activeSort]);
+/*
+  useEffect(() => {
+    console.log("used effect f")
+    listDataWithFilter();
+
+  }, [filter]);
+*/
   const handleModalToggle = () => {
     setIsModalOpen(!isModalOpen);
   };
@@ -376,13 +405,17 @@ const operationOptions = [
           <ArtemisFilters
             columns={columns}
             operationOptions={operationOptions}
-            initialFilter={filter}
-            onApplyFilter={(f) => {
-              setPage(1);
-              setFilter(f);
-              if (broker.storageColumnLocation) {
-                sessionStorage.setItem(broker.storageColumnLocation + '.filter', JSON.stringify(f));
-              }
+            initialFilter={filter2}
+            onApplyFilter={async (f) => {
+              console.log("onapply filter on table")
+              //setPage(1); // page state still belongs here
+              /*if (broker.storageColumnLocation) {
+                sessionStorage.setItem(
+                  broker.storageColumnLocation + ".filter",
+                  JSON.stringify(f)
+                );
+              }*/
+              await listDataWithFilter(f); // pass filter explicitly
             }}
           />
 
@@ -429,33 +462,39 @@ const operationOptions = [
         <Tbody>
             {(() => {
     const t0 = performance.now();
+//console.log("columns");
+//console.log(visibleColumns);
 
     const result = rows.map((row, rowIndex) => (
 
-            <Tr key={rowIndex}>
-              <>
-               {visibleColumns.map((column, id) => {
-                  const key = getKeyByValue(row, column.id)
-                  if(column.filter) {
-                    const filter = column.filter(row);
-                    return <Td key={id}><Link to="" onClick={() => {if (broker.navigate) { broker.navigate(column.filterTab, filter)}}}>{key}</Link></Td>
-                  } else if (column.link) {
-                    return <Td key={id}><Link to="" onClick={() => {if (column.link) column.link(row)}}>{key}</Link></Td>
-                  } else {
-                    return <Td key={id}>{key}</Td>
-                  }
-                })}
-                <Td isActionCell>
-                  <ActionsColumn
-                    items={getRowActions(row)}
-                    popperProps={popperProps}
-                    
-                  />
-                </Td>
-              </>
+        <Tr key={rowIndex}>
+          <>
+            {visibleColumns.map((column, id) => {
+              const key = getKeyByValue(row, column.id)
+              if(column.filter) {
+                //console.log("row");
+                //console.log(row);
+                const filter = column.filter(row);
+                return <Td key={id}><Link to="" onClick={() => {if (broker.navigate) { broker.navigate(column.filterTab, filter)}}}>{key}</Link></Td>
+              } else if (column.link) {
+                var c = column.link;
+                return <Td key={id}><Link to="" onClick={() => {if (column.link) c(row)}}>{key}</Link></Td>
+              } else {
+                return <Td key={id}>{key}</Td>
+              }
+            })}
+            <Td isActionCell>
+              <ActionsColumn
+                items={getRowActions(row)}
+                popperProps={popperProps}
+                
+              />
+            </Td>
+          </>
       </Tr>
     ));
     console.log("rows.map took", (performance.now() - t0).toFixed(2), "ms");
+
     return result;
   })()}
 </Tbody>

@@ -40,6 +40,7 @@ export const ArtemisFilters: React.FC<ArtemisFiltersProps> = ({ columns, operati
   const visibleColumns = columns.filter(c => c.visible);
 
   const applyFilter = () => {
+    console.log("apply filter")
     const filterValue = searchRef.current?.value ?? "";
     if (filterOperation && filterColumn) {
       onApplyFilter({ column: filterColumn.id, operation: filterOperation.id, input: filterValue });

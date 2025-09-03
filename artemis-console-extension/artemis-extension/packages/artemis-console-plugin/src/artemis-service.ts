@@ -439,9 +439,12 @@ class ArtemisService {
 
     async getQueues(page: number, perPage: number, activeSort: ActiveSort, filter: Filter): Promise<string> {
         var queuesFilter = {
-            field: filter.input !== '' ? filter.column : '',
-            operation: filter.input !== '' ? filter.operation : '',
-            value: filter.input,
+            //field: filter.input !== '' ? filter.column : '',
+            //operation: filter.input !== '' ? filter.operation : '',
+            //value: filter.input,
+            field: '',
+            operation: '',
+            value: '',
             sortOrder: activeSort.order,
             sortColumn: activeSort.id
         };
