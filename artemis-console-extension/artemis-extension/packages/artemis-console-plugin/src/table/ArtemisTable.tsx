@@ -122,6 +122,13 @@ const operationOptions = [
   const [perPage, setPerPage] = useState(10);
   const pageSize = artemisPreferencesService.loadTablePageSize(broker.storageColumnLocation);
 
+  const popperProps = {
+    position: 'right' as const,
+    appendTo: () => document.getElementById('root') as HTMLElement,
+  };
+
+  const visibleColumns = columns.filter((column) => column.visible);
+
   const initialFilter = () =>  {
     if (broker.storageColumnLocation && sessionStorage.getItem(broker.storageColumnLocation + '.filter')) {
       return JSON.parse(sessionStorage.getItem(broker.storageColumnLocation + '.filter') as string);
@@ -391,8 +398,7 @@ const operationOptions = [
       <Table variant="compact" aria-label="Data Table" id='data-table'>
       <Thead>
         <Tr>
-          {columns.map((column, id) => {
-            if (!column.visible) return null;
+          {visibleColumns.map((column, id) => {
 
             const isSorted = column.id === activeSort.id;
             const direction = isSorted ? activeSort.order : undefined;
@@ -420,7 +426,7 @@ const operationOptions = [
           {rows.map((row, rowIndex) => (
             <Tr key={rowIndex}>
               <>
-               {columns.filter((column) => column.visible).map((column, id) => {
+               {visibleColumns.map((column, id) => {
                   const key = getKeyByValue(row, column.id)
                   if(column.filter) {
                     const filter = column.filter(row);
@@ -434,7 +440,7 @@ const operationOptions = [
                 <Td isActionCell>
                   <ActionsColumn
                     items={getRowActions(row)}
-                    popperProps={{ position: 'right', appendTo: () => (document.getElementById('root') as HTMLElement) }}
+                    popperProps={popperProps}
                   />
                 </Td>
               </>
