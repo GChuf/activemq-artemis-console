@@ -34,7 +34,7 @@ import {
   Text,
   TextContent
 } from '@patternfly/react-core';
-import { SortAmountDownIcon,CheckIcon } from '@patternfly/react-icons';
+import { SortAmountDownIcon } from '@patternfly/react-icons';
 import { Thead, Tr, Th, Tbody, Td, IAction, ActionsColumn, Table, InnerScrollContainer } from '@patternfly/react-table';
 import { artemisPreferencesService } from '../artemis-preferences-service';
 
@@ -110,7 +110,6 @@ const operationOptions = [
 
   const [columns, setColumns] = useState(broker.allColumns);
   const [activeSort, setActiveSort] = useState(initialActiveSort);
-  const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [isCompact, setIsCompact] = useState(false);
@@ -362,7 +361,7 @@ const [selectedItems, setSelectedItems] = useState<string[]>([]);
                 if (value === SortDirection.ASCENDING || value === SortDirection.DESCENDING) {
                   // Direction selected
                   updateActiveSort(activeSort.id, value);
-                 setSelectedItems([activeSort.id, value]);
+                  setSelectedItems([activeSort.id, value]);
 
                 } else {
                   // Column selected
