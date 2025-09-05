@@ -30,7 +30,7 @@ import {
   Modal,
   Pagination,
   PaginationVariant,
-  Select, MenuToggleElement, MenuToggle, SelectList,SelectOption,Divider,SelectGroup,
+  Select, MenuToggleElement, MenuToggle, SelectList,SelectOption,Divider,
   Text,
   TextContent
 } from '@patternfly/react-core';
@@ -181,14 +181,10 @@ const [selectedItems, setSelectedItems] = useState<string[]>([]);
   }
 
   const updateActiveSort = (id: string, order: SortDirection) => {
-    console.log("id is ", id)
-    
     const updatedActiveSort: ActiveSort = {
       id: id,
       order: order
     };
-    console.log("updated id is ", updatedActiveSort.id)
-    console.log("sort is ", updatedActiveSort.order)
     setActiveSort(updatedActiveSort)
     sessionStorage.setItem(broker.storageColumnLocation + ".activesort",JSON.stringify(updatedActiveSort));
   }
@@ -288,9 +284,6 @@ const [selectedItems, setSelectedItems] = useState<string[]>([]);
       <Toolbar id="toolbar">
         <ToolbarContent>
           <ToolbarItem key='address-sort'>
-
-
-
             <Select
               toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
                 <MenuToggle
@@ -299,9 +292,7 @@ const [selectedItems, setSelectedItems] = useState<string[]>([]);
                   ref={toggleRef}
                   onClick={() => setSortOpen(prev => !prev)}
                 >
-                  {activeSort?.id
-                    ? broker.allColumns[activeSort.id]?.name
-                    : "Select column"}
+                  {broker.allColumns[activeSort.id]?.name}
                      <SortAmountDownIcon />
                 </MenuToggle>
               )}
@@ -311,7 +302,6 @@ const [selectedItems, setSelectedItems] = useState<string[]>([]);
               onOpenChange={setSortOpen}
 
               onSelect = {(_, value) => {
-                // eslint-disable-next-line no-console
                 console.log('selected', value);
                 if (typeof value !== "string") return; // ignore numbers / undefined
                 if (value === SortDirection.ASCENDING || value === SortDirection.DESCENDING) {
@@ -325,36 +315,26 @@ const [selectedItems, setSelectedItems] = useState<string[]>([]);
                   setSelectedItems([value, activeSort.order]);
                 }
               
-
               }
             }
             selected={selectedItems}
             >
 
-              <SelectList>
-                {Object.values(broker.allColumns)
-                  .filter(col => col.visible)
-                  .map(col => (
-                    <SelectOption key={col.id} value={col.id}>
-                      {col.name}
-                    </SelectOption>
-                  ))}
-              </SelectList>
-
-
+            <SelectList>
+              {Object.values(broker.allColumns)
+                .filter(col => col.visible)
+                .map(col => (
+                  <SelectOption key={col.id} value={col.id}>
+                    {col.name}
+                  </SelectOption>
+                ))}
+            </SelectList>
             <Divider/>
-
               <SelectList>
-                  <SelectOption id="ascending" key="ascending" value={SortDirection.ASCENDING}>Ascending</SelectOption>
-                  <SelectOption id="descending" key="descending" value={SortDirection.DESCENDING}>Descending</SelectOption>
+                  <SelectOption key="ascending" value={SortDirection.ASCENDING}>Ascending</SelectOption>
+                  <SelectOption key="descending" value={SortDirection.DESCENDING}>Descending</SelectOption>
               </SelectList>
-
-
-
             </Select>
-
-
-
           </ToolbarItem>
 
           <ArtemisFilters
