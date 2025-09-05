@@ -30,19 +30,14 @@ import {
   Modal,
   Pagination,
   PaginationVariant,
+  Select, MenuToggleElement, MenuToggle, SelectList,SelectOption,Divider,SelectGroup,
   Text,
   TextContent
 } from '@patternfly/react-core';
-import { SortAmountDownIcon } from '@patternfly/react-icons/dist/esm/icons/sort-amount-down-icon';
+import { SortAmountDownIcon,CheckIcon } from '@patternfly/react-icons';
 import { Thead, Tr, Th, Tbody, Td, IAction, ActionsColumn, Table, InnerScrollContainer } from '@patternfly/react-table';
 import { artemisPreferencesService } from '../artemis-preferences-service';
-import {
-  OptionsMenu,
-  OptionsMenuItem,
-  OptionsMenuItemGroup,
-  OptionsMenuSeparator,
-  OptionsMenuToggle
-} from '@patternfly/react-core/deprecated'
+
 
 import { ArtemisFilters } from './ArtemisFilters';
 
@@ -129,9 +124,9 @@ const operationOptions = [
       input: ''
     }
   }
-
+const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [filter, setFilter] = useState(() => broker.filter !== undefined ? broker.filter : initialFilter());
-
+  const [sortOpen, setSortOpen] = useState(false);
   const listData = async () => {
     const data = await broker.getData(page, perPage, activeSort, filter);
     setRows(data.data);
@@ -187,10 +182,14 @@ const operationOptions = [
   }
 
   const updateActiveSort = (id: string, order: SortDirection) => {
+    console.log("id is ", id)
+    
     const updatedActiveSort: ActiveSort = {
       id: id,
       order: order
     };
+    console.log("updated id is ", updatedActiveSort.id)
+    console.log("sort is ", updatedActiveSort.order)
     setActiveSort(updatedActiveSort)
     sessionStorage.setItem(broker.storageColumnLocation + ".activesort",JSON.stringify(updatedActiveSort));
   }
@@ -290,53 +289,73 @@ const operationOptions = [
       <Toolbar id="toolbar">
         <ToolbarContent>
           <ToolbarItem key='address-sort'>
-            <OptionsMenu
-              id="options-menu-multiple-options-example"
-              menuItems={[
-                <OptionsMenuItemGroup key="sort-columns" aria-label="Sort column">
-                  {Object.values(broker.allColumns).filter((element) => element.visible).map((column, columnIndex) => (
-                    <OptionsMenuItem
-                      key={column.id}
-                      isSelected={activeSort.id === column.id}
-                      onSelect={() => {
-                        updateActiveSort(column.id, activeSort.order)
-                      }}
-                    >
-                      {column.name}
-                    </OptionsMenuItem>
-                  ))}
-                </OptionsMenuItemGroup>,
-                <OptionsMenuSeparator key="separator" />,
-                <OptionsMenuItemGroup key="sort-direction" aria-label="Sort direction">
-                  <OptionsMenuItem
-                    onSelect={() => updateActiveSort(activeSort.id, SortDirection.ASCENDING)}
-                    isSelected={activeSort.order === SortDirection.ASCENDING}
-                    id="ascending"
-                    key="ascending"
-                  >
-                    Ascending
-                  </OptionsMenuItem>
-                  <OptionsMenuItem
-                    onSelect={() => updateActiveSort(activeSort.id, SortDirection.DESCENDING)}
-                    isSelected={activeSort.order === SortDirection.DESCENDING}
-                    id="descending"
-                    key="descending"
-                  >
-                    Descending
-                  </OptionsMenuItem>
-                </OptionsMenuItemGroup>
-              ]}
-              isOpen={isSortDropdownOpen}
-              toggle={
-                <OptionsMenuToggle
-                  hideCaret
-                  onToggle={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
-                  toggleTemplate={<SortAmountDownIcon />}
-                />
+
+
+
+            <Select
+              toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                <MenuToggle
+                  variant="plain"
+                  isFullWidth
+                  ref={toggleRef}
+                  onClick={() => setSortOpen(prev => !prev)}
+                >
+                  {activeSort?.id
+                    ? broker.allColumns[activeSort.id]?.name
+                    : "Select column"}
+                     <SortAmountDownIcon />
+                </MenuToggle>
+              )}
+              role="menu"
+              aria-label="Select Sort"
+              isOpen={sortOpen}
+              onOpenChange={setSortOpen}
+
+              onSelect = {(_, value) => {
+                // eslint-disable-next-line no-console
+                console.log('selected', value);
+                if (typeof value !== "string") return; // ignore numbers / undefined
+                if (value === SortDirection.ASCENDING || value === SortDirection.DESCENDING) {
+                  // Direction selected
+                  updateActiveSort(activeSort.id, value);
+                 setSelectedItems([activeSort.id, value]);
+
+                } else {
+                  // Column selected
+                  updateActiveSort(value, activeSort.order);
+                  setSelectedItems([value, activeSort.order]);
+                }
+              
+
               }
-              isPlain
-              isGrouped
-            />
+            }
+            selected={selectedItems}
+            >
+
+              <SelectList>
+                {Object.values(broker.allColumns)
+                  .filter(col => col.visible)
+                  .map(col => (
+                    <SelectOption key={col.id} value={col.id}>
+                      {col.name}
+                    </SelectOption>
+                  ))}
+              </SelectList>
+
+
+            <Divider/>
+
+              <SelectList>
+                  <SelectOption id="ascending" key="ascending" value={SortDirection.ASCENDING}>Ascending</SelectOption>
+                  <SelectOption id="descending" key="descending" value={SortDirection.DESCENDING}>Descending</SelectOption>
+              </SelectList>
+
+
+
+            </Select>
+
+
+
           </ToolbarItem>
 
           <ArtemisFilters
