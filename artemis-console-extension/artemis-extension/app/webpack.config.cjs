@@ -220,6 +220,7 @@ module.exports = (webpackEnv, args) => {
       /Critical dependency: the request of a dependency is an expression/
     ],
     resolve: {
+      fullySpecified: false, // allows imports without extensions
       extensions: ['.ts', '.tsx', '.js', '.cjs', '.jsx'],
       // To resolve errors for @module-federation/utilities 2.x
       // https://github.com/module-federation/universe/issues/827
