@@ -164,22 +164,29 @@ module.exports = (webpackEnv, args) => {
     },
     module: {
       strictExportPresence: true,
-      rules: [
-        {
-          test: /\.tsx?$/,
-          exclude: /node_modules/,
-          use: {
-            loader: 'swc-loader',
-            options: {
-              jsc: {
-                parser: {
-                  syntax: 'typescript',
-                },
-              },
-            },
-          },
-        },
-        {
+	  rules: [
+		{
+		  test: /\.tsx?$/,
+		  exclude: /node_modules/,
+		  use: {
+			loader: 'swc-loader',
+			options: {
+			  jsc: {
+				parser: {
+				  syntax: 'typescript',
+				  tsx: true,
+				},
+				transform: {
+				  react: {
+					runtime: 'automatic', // <- enables new JSX transform
+					importSource: 'react',
+				  },
+				},
+			  },
+			},
+		  },
+		},
+		{
           test: /\.css$/i,
           use: [
             {
@@ -227,8 +234,9 @@ module.exports = (webpackEnv, args) => {
       //   path: require.resolve('path-browserify'),
       //   os: require.resolve('os-browserify'),
       // },
-      symlinks: true, // with symlinks: false, `webpaack server` doesn't reload on change in the package...
+      symlinks: false, // with symlinks: false, `webpaack server` doesn't reload on change in the package...
       alias: {
+		'artemis-console-plugin': path.resolve(__dirname, '../packages/artemis-console-plugin/src'),
         '@thumbmarkjs/thumbmarkjs': path.join(__dirname, '../node_modules/@thumbmarkjs/thumbmarkjs/dist/thumbmark.esm.js'),
       },
     },
@@ -329,6 +337,10 @@ module.exports = (webpackEnv, args) => {
         },
         writeToDisk: true
       },
+	  watchFiles: [
+		path.resolve(__dirname, 'src/**/*'),
+		path.resolve(__dirname, '../packages/artemis-console-plugin/**/*'),
+	  ],
       setupMiddlewares: (middlewares, devServer) => {
           // Enabling branding in dev mode
           devServer.app.use((req, _, next) => {
