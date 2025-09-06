@@ -228,13 +228,6 @@ module.exports = (webpackEnv, args) => {
     ],
     resolve: {
       extensions: ['.ts', '.tsx', '.js', '.cjs', '.jsx'],
-      // To resolve errors for @module-federation/utilities 2.x
-      // https://github.com/module-federation/universe/issues/827
-      // fallback: {
-      //   path: require.resolve('path-browserify'),
-      //   os: require.resolve('os-browserify'),
-      // },
-      symlinks: false, // with symlinks: false, `webpaack server` doesn't reload on change in the package...
       alias: {
 		'artemis-console-plugin': path.resolve(__dirname, '../packages/artemis-console-plugin/src'),
         '@thumbmarkjs/thumbmarkjs': path.join(__dirname, '../node_modules/@thumbmarkjs/thumbmarkjs/dist/thumbmark.esm.js'),
@@ -386,7 +379,7 @@ module.exports = (webpackEnv, args) => {
             path: '/hawtio/proxy',
             middleware: hawtioBackend({
               // Uncomment it if you want to see debug log for Hawtio backend
-              logLevel: 'debug',
+              logLevel: 'info',
             }),
           })
 
