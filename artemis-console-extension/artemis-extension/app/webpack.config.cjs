@@ -238,9 +238,16 @@ module.exports = (webpackEnv, args) => {
       minimizer: [
         // This is only used in production mode
         new TerserPlugin({
+          parallel: true,
           terserOptions: {
             ecma: 2023,
-            compress: true,
+            module: true,
+            compress: {
+              passes: 2,
+              pure_getters: true,
+              drop_console: true,
+              drop_debugger: true
+            },
             mangle: true,
             output: {
               ecma: 2023,
@@ -375,7 +382,7 @@ module.exports = (webpackEnv, args) => {
             path: '/hawtio/proxy',
             middleware: hawtioBackend({
               // Uncomment it if you want to see debug log for Hawtio backend
-              logLevel: 'debug',
+              logLevel: 'info',
             }),
           })
 
