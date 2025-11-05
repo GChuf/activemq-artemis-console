@@ -97,14 +97,16 @@ export const Status: React.FunctionComponent = () => {
 
     useEffect(() => {
         // run only once at the beginning
-        getBrokerInfo();
- 
-        getAcceptors();
 
-        getClusterConnections();
+        const getInfo = async () => {
+            getBrokerInfo();
+            getAcceptors();
+            getClusterConnections();
 
-        const timer = setInterval(getBrokerInfo, 5000)
-        return () => clearInterval(timer)
+            setTimeout(getInfo, 5000);
+        }
+
+        getInfo();
 
     }, [])
 

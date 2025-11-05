@@ -185,13 +185,26 @@ class ArtemisService {
     }
 
     async getBrokerInfo(): Promise<BrokerInfo | null> {
+
+        const jolokiaAttributes = [
+            "Name",         // brokerInfo.name
+            "NodeID",       // brokerInfo.nodeID
+            "Version",      // brokerInfo.version
+            "Started",      // brokerInfo.started
+            "Uptime",       // brokerInfo.uptime
+            "GlobalMaxSize",// used to compute globalMaxSizeMB
+            "AddressMemoryUsage", // used to compute addressMemoryUsageMB and used
+            "HAPolicy"      // brokerInfo.haPolicy
+        ];
+
         return new Promise<BrokerInfo | null>(async (resolve, reject) => {
             const brokerObjectName = await this.brokerObjectName;
             if ("" === brokerObjectName) {
                 resolve(null)
                 return
             }
-            const response = await jolokiaService.readAttributes(brokerObjectName).catch(e => null);
+            console.log("reading specified attrs");
+            const response = await jolokiaService.readSpecifiedAttributes(brokerObjectName, jolokiaAttributes).catch(e => null);
             if (response) {
                 const name = response.Name as string;
                 const nodeID = response.NodeID as string;
